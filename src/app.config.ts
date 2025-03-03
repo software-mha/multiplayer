@@ -5,16 +5,16 @@ import { playground } from "@colyseus/playground";
 /**
  * Import your Room files
  */
-import { MyRoom } from "./rooms/MyRoom";
+import { CustomLobbyRoom } from "./rooms/CustomLobbyRoom/CustomLobbyRoom";
+import { CustomRelayRoom } from "./rooms/CustomRelayRoom/CustomRelayRoom";
 
 export default config({
-
     initializeGameServer: (gameServer) => {
         /**
          * Define your room handlers:
          */
-        gameServer.define('my_room', MyRoom);
-
+        gameServer.define("lobby_room", CustomLobbyRoom);
+        gameServer.define("relay_room", CustomRelayRoom);
     },
 
     initializeExpress: (app) => {
@@ -42,10 +42,9 @@ export default config({
         app.use("/monitor", monitor());
     },
 
-
     beforeListen: () => {
         /**
          * Before before gameServer.listen() is called.
          */
-    }
+    },
 });
