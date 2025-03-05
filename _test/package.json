@@ -1,0 +1,21 @@
+{
+    "name": "test",
+    "version": "1.0.0",
+    "main": "index.js",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "start": "vite",
+        "build": "vite build"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "vite-plugin-static-copy": "^2.3.0"
+    },
+    "dependencies": {
+        "colyseus.js": "^0.16.9"
+    }
+}
