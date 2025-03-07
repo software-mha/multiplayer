@@ -14,7 +14,8 @@ export const messageType = {
     // Send Request
     send_to_other: 3000,
     send_to_all: 3001,
-    send_to_specific: 3002,
+    send_to_master: 3002,
+    send_to_specific: 3003,
 
     // Connection Request
     player_join: 0,

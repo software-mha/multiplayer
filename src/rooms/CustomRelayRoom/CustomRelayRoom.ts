@@ -8,16 +8,26 @@ import { messageType } from "./data/data";
 export class CustomRelayRoom extends Room<RelayRoomState> {
     async onCreate(options: any): Promise<void> {
         console.log("Relay Room Created:", this.roomId);
+        console.log("Relay Room Created:", options);
         this.state = new RelayRoomState();
         this.maxClients = options.maxClients || 8;
         this.patchRate = 0;
+        console.log("jaja");
 
-        if (!options.gameId || options.gameId.trim() === "") {
+        if (
+            !options.metadata ||
+            !options.metadata.gameId ||
+            options.metadata.gameId.trim() === ""
+        ) {
             console.error("Room creation failed: Missing or invalid gameId");
             this.autoDispose = true; // ✅ Prevent the room from being created
             return;
         }
-        if (!options.version || options.version.trim() === "") {
+        if (
+            !options.metadata ||
+            !options.metadata.version ||
+            options.metadata.version.trim() === ""
+        ) {
             console.error("Room creation failed: Missing or invalid version");
             this.autoDispose = true; // ✅ Prevent the room from being created
             return;
@@ -33,7 +43,8 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
         this.setMetadata({
             gameId: options.gameId,
             version: options.version,
-            ...options.roomSetting,
+            type: options.type,
+            roomSetting: options.roomSetting,
         });
 
         // 🔹 Handle all messages
@@ -43,21 +54,24 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
             // console.log(type);
             // console.log(message);
             // delete message.type;
-            if (typeof type !== "number") {
-                console.error(
-                    `Invalid message type from ${client.sessionId}:`,
-                    type
-                );
-                client.send("error", {
-                    message: "Message type must be a number",
-                });
-                return;
-            }
+            // console.log(client, " ", type, " ", message);
+            // if (typeof type !== "number") {
+            //     console.error(
+            //         `Invalid message type from ${client.sessionId}:`,
+            //         type
+            //     );
+            //     client.send("error", {
+            //         message: "Message type must be a number",
+            //     });
+            //     return;
+            // }
             this.handleMessage(client, type, message);
         });
     }
 
-    handleMessage(client: Client, type: Number, message?: any) {
+    
+
+    handleMessage(client: Client, type: Number | String, message?: any) {
         switch (type) {
             // Updates
             case messageType.update_room_data:
@@ -119,12 +133,20 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
             case messageType.send_to_all:
                 this.broadcast(messageType.send_to_all, message.data);
                 break;
+            case messageType.send_to_master:
+                let master =
+                    this.clients.find(
+                        (client) =>
+                            client.sessionId === this.state.masterClientId
+                    ) || null;
+                if (master)
+                    master.send(messageType.send_to_master, message.data);
+                break;
             case messageType.send_to_specific:
                 this.sendMessageToSpecific(
                     messageType.send_to_specific,
                     message.data,
-                    message.except,
-                    message.specific
+                    message.targetClients
                 );
                 break;
             default:
@@ -137,13 +159,13 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
     sendMessageToSpecific(
         type: number,
         data: any,
-        except: string[] = [],
-        specific: string[] = []
+        targetClients: string[] = []
     ) {
         this.clients.forEach((client) => {
-            if (except.length > 0 && except.includes(client.sessionId)) return;
-
-            if (specific.length > 0 && !specific.includes(client.sessionId))
+            if (
+                targetClients.length > 0 &&
+                !targetClients.includes(client.sessionId)
+            )
                 return;
 
             client.send(type.toString(), data);
@@ -155,7 +177,9 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
 
         if (
             this.state.players.size == 0 &&
-            (!options.gameId || options.gameId.trim() === "")
+            (!options.metadata ||
+                !options.metadata.gameId ||
+                options.metadata.gameId.trim() === "")
         ) {
             console.log(`Rejecting ${client.sessionId}: Missing gameId`);
             client.send("error", {
@@ -167,7 +191,9 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
 
         if (
             this.state.players.size == 0 &&
-            (!options.version || options.version.trim() === "")
+            (!options.metadata ||
+                !options.metadata.version ||
+                options.metadata.version.trim() === "")
         ) {
             console.log(`Rejecting ${client.sessionId}: Missing version`);
             client.send("error", {
@@ -228,5 +254,5 @@ export class CustomRelayRoom extends Room<RelayRoomState> {
 
     onError(client: Client, error: any) {
         console.error(`Error from client ${client.sessionId}:`, error);
-      }
+    }
 }
