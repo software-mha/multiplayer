@@ -14,7 +14,11 @@ export default class Client {
         this.#version = version;
     }
 
+    onJoinRoom(room) {
+    }
+
     async createRoom(type, roomData, roomSetting, playerData) {
+        let self = this;
         let room = null;
 
         switch (type) {
@@ -22,7 +26,10 @@ export default class Client {
                 room = new CustomRelayRoom(
                     this.#client,
                     this.#gameId,
-                    this.#version
+                    this.#version,
+                    (room) => {
+                        self.onJoinRoom(room);
+                    }
                 );
                 break;
         }
@@ -31,7 +38,11 @@ export default class Client {
             console.error("createRoom: Room type does not exist.");
 
         try {
-            room = await room.createRoom(roomData, roomSetting, playerData);
+            room = await room.createRoom(
+                roomData,
+                roomSetting,
+                playerData
+            );
         } catch (e) {
             console.error("createRoom: ", e);
         }
@@ -68,7 +79,7 @@ export default class Client {
         return room;
     }
 
-    async joinRoom(type,roomSetting,playerData) {
+    async joinRoom(type, roomSetting, playerData) {
         let room = null;
 
         switch (type) {
@@ -81,11 +92,10 @@ export default class Client {
                 break;
         }
 
-        if (room == null)
-            console.error("joinRoom: Room type does not exist.");
+        if (room == null) console.error("joinRoom: Room type does not exist.");
 
         try {
-            room = await room.joinRoom(roomSetting,playerData);
+            room = await room.joinRoom(roomSetting, playerData);
         } catch (e) {
             console.error("joinRoom: ", e);
         }
