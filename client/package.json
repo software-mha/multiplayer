@@ -1,13 +1,16 @@
 {
     "name": "test",
     "version": "1.0.0",
-    "main": "index.js",
     "directories": {
         "test": "test"
     },
     "scripts": {
         "start": "vite",
         "build": "vite build"
+    },
+    "main": "dist/index.js",
+    "exports": {
+        ".": "./dist/index.js"
     },
     "author": "",
     "license": "ISC",

@@ -7,6 +7,7 @@ const MultiClient = {
     CustomRelayRoom,
     RoomType
 };
+const asd='asd123';
 
 Object.freeze(MultiClient);
 

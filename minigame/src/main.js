@@ -1,44 +1,47 @@
 // Import Phaser
-import Phaser from 'phaser';
-import * as MultiClients from './multi-client.es';
+import Phaser from "phaser";
+import MultiClient from '../../client/dist/multi-client.es';
 
 // Game scene
 class MainScene extends Phaser.Scene {
     constructor() {
-        super('MainScene');
-MultiClient
+        super("MainScene");
     }
 
     preload() {
         // Load player sprite (Replace with actual asset)
-        this.load.image('player', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
-
+        this.load.image(
+            "player",
+            "https://labs.phaser.io/assets/sprites/phaser-dude.png"
+        );
     }
 
-    onJoinRoom(room){
-      console.log("outer onJoinRoom",room);
-      this.room = room;
-      window.room1 = room;
+    onJoinRoom(room) {
+        console.log("outer onJoinRoom", room);
+        this.room = room;
+        window.room1 = room;
     }
 
     create() {
         // Create player
-        this.player = this.physics.add.sprite(400, 300, 'player');
+        this.player = this.physics.add.sprite(400, 300, "player");
         this.player.setCollideWorldBounds(true);
 
         // Setup keyboard input
         this.cursors = this.input.keyboard.createCursorKeys();
-        
+
         let client1 = new MultiClient.Client("http://localhost:2567", "1", "1");
         client1.onJoinRoom = this.onJoinRoom;
-        client1.createRoom(MultiClient.RoomType.relayRoom,{},{"asd":"asd","123":"123"},{name:"hassan"});
+        client1.createRoom(
+            MultiClient.RoomType.relayRoom,
+            {},
+            { asd: "asd", 123: "123" },
+            { name: "hassan" }
+        );
         window.client1 = client1;
-        
     }
 
-    updatePosition(){
-      
-    }
+    updatePosition() {}
 
     update() {
         // Movement logic
@@ -67,10 +70,10 @@ const config = {
     width: 800,
     height: 600,
     physics: {
-        default: 'arcade',
-        arcade: { gravity: { y: 0 }, debug: false }
+        default: "arcade",
+        arcade: { gravity: { y: 0 }, debug: false },
     },
-    scene: MainScene
+    scene: MainScene,
 };
 
 // Initialize the game
